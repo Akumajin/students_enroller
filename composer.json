@@ -24,7 +24,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "": "src/classes/"
+            "Models\\": "models/"
         }
     },
     "config": {
@@ -34,5 +34,5 @@
         "start": "php -S localhost:8080 -t public index.php",
         "test": "phpunit"
     }
-    
+
 }
