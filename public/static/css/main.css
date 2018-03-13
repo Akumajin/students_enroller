@@ -1,0 +1,14 @@
+body{
+    background-color: #e0e0e6;
+}
+.white-box {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 7px;
+    box-shadow: 0px 2px 4px #b7b7b7;
+    border: 1px solid #ccc;
+}
+.tb-margin-low{
+    margin-top: 5px;
+    margin-bottom: 5px;
+}

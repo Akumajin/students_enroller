@@ -1,0 +1,14 @@
+.login-container {
+    max-width: 400px;
+    margin: 60px auto 0;
+}
+.lg-logo{
+    text-align: center;
+    margin: 15px 0;
+}
+.form-button{
+    margin-bottom: -15px;
+}
+.form-button .btn{
+    min-width: 100px;
+}
