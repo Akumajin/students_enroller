@@ -3,6 +3,9 @@
 <link rel="stylesheet" href="/static/css/login.css" >
 {% endblock %}
 {% block body %}
+{% for j in errors %}
+{{j}}
+{% endfor %}
 <div class="login-container">
   <div class="lg-logo">
     <img src="/static/template/logo.png">
@@ -10,7 +13,7 @@
   <div class="white-box">
     <h4 class="text-center">Signup</h4>
     <hr>
-    <form>
+    <form method="POST">
       <div class="form-group">
         <label for="sgn_username">Username</label>
         <input type="text" name="sgn_username" class="form-control" id="sgn_username" placeholder="Enter Username">
@@ -24,7 +27,7 @@
         <input type="password" name="sgn_password" class="form-control" id="sgn_password" placeholder="Password">
       </div>
       <div class="form-button text-center">
-          <button type="submit" class="btn btn-success btn-block">Login</button>
+          <button type="submit" class="btn btn-success btn-block">Signup</button>
           <div class="tb-margin-low">Already have an account? <a href="/login">Login</a></p>
       </div>      
     </form>

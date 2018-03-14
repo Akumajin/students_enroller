@@ -41,9 +41,3 @@ $container['db'] = function ($c) {
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     return $pdo;
 };
-
-// my classes
-
-$container['User'] = function ($c) {
-    return new User($c);
-};
