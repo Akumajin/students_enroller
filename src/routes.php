@@ -45,6 +45,7 @@ $app->get('/signup', function ($request, $response, $args) {
 $app->post('/signup', function ($request, $response, $args) {
     $data = $request->getParsedBody();
     $empty_fields = false;
+    $is_duplicated = false;
     $user_data = [];
     $user_data['username'] = filter_var($data['sgn_username'], FILTER_SANITIZE_STRING);
     $user_data['fullname'] = filter_var($data['sgn_fullname'], FILTER_SANITIZE_STRING);
@@ -59,20 +60,24 @@ $app->post('/signup', function ($request, $response, $args) {
             'empty_fields' => $empty_fields
         ]);
     };
+
     $user = new User($this->db);
     $result = $user->insertUser($user_data);
-    if ($result == true){
-        $result = $user->getUserByUsername($user_data['username']);
-        if (!empty($result)){
-                $_SESSION["id"] = $result["id"];
-                $_SESSION["username"] = $result["username"];
-                $_SESSION["full_name"] = $result["full_name"];
-                return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
+    if ($result == "duplicate_entry"){
+        $is_duplicated = true;
+    } else if ($result == "success"){
+        $fetched_user = $user->getUserByUsername($user_data['username']);
+        if (!empty($fetched_user)){
+            $_SESSION["id"] = $fetched_user["id"];
+            $_SESSION["username"] = $fetched_user["username"];
+            $_SESSION["full_name"] = $fetched_user["full_name"];
+            return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
         };
-    };
+    }
     return $this->view->render($response, 'signup.html', [
         'page_title' => 'Signup',
-        'errors' => $empty_fields
+        'errors' => $empty_fields,
+        'id_duplicated' => $is_duplicated
     ]);
 });
 

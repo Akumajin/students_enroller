@@ -10,6 +10,9 @@
   {% if empty_fields %}
   <div class="alert alert-danger">Please fill out all fields</div>
   {% endif %}
+  {% if id_duplicated %}
+  <div class="alert alert-danger">Username already taken</div>
+  {% endif %}
   <div class="white-box">
     <h4 class="text-center">Signup</h4>
     <hr>
