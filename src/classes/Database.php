@@ -10,7 +10,7 @@ class Database
     public function createDbIfNotExist() {
         try {
             $db =  $this->db;
-            $db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );//Error Handling
+            $db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
             $sql ="CREATE TABLE IF NOT EXISTS enrollments(
                id INT(11) AUTO_INCREMENT PRIMARY KEY,
                user_id int(11) NOT NULL,
@@ -29,7 +29,7 @@ class Database
             );";
              $db->exec($sql);
         } catch(PDOException $e) {
-            echo $e->getMessage();//Remove or change message in production code
+            echo $e->getMessage();
         }
     }
 }
