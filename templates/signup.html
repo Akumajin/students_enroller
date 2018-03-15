@@ -3,13 +3,13 @@
 <link rel="stylesheet" href="/static/css/login.css" >
 {% endblock %}
 {% block body %}
-{% for j in errors %}
-{{j}}
-{% endfor %}
 <div class="login-container">
   <div class="lg-logo">
     <img src="/static/template/logo.png">
   </div>
+  {% if empty_fields %}
+  <div class="alert alert-danger">Please fill out all fields</div>
+  {% endif %}
   <div class="white-box">
     <h4 class="text-center">Signup</h4>
     <hr>

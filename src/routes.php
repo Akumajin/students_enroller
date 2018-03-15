@@ -6,6 +6,9 @@ use Slim\Http\Response;
 
 // Login page
 $app->get('/login', function (Request $request, Response $response, array $args) {
+    if($_SESSION){
+		return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
+	};
     return $this->view->render($response, 'login.html', [
         'page_title' => 'Login'
     ]);
@@ -19,13 +22,16 @@ $app->post('/login', function ($request, $response, $args) {
     
     $user = new User($this->db);
     $result = $user->getUserByUsername($user_data['username']);
-    if (!empty($result)){
-        if (password_verify($user_data['password'], $result->password)){
-            $_SESSION["id"] = $result->id;
-            return json_encode((object) array('success'=>true, 'fullname' => $result->full_name ));
-        }
+    if (!empty($result) and password_verify($user_data['password'], $result["password"])){
+            $_SESSION["id"] = $result["id"];
+            $_SESSION["username"] = $result["username"];
+            $_SESSION["full_name"] = $result["full_name"];
+            return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
     };
-    return json_encode((object) array('success'=>false, 'fullname' => ""));
+    return $this->view->render($response, 'login.html', [
+        'page_title' => 'Login',
+        'error' => 'Username or password was entered incorrectly.'
+    ]);
 });
 
 // Signup page
@@ -37,38 +43,62 @@ $app->get('/signup', function ($request, $response, $args) {
 
 $app->post('/signup', function ($request, $response, $args) {
     $data = $request->getParsedBody();
-    $errors = array('invalid_username' => false, 'invalid_fullname' => false, 'invalid_password' => false);
+    $empty_fields = false;
     $user_data = [];
     $user_data['username'] = filter_var($data['sgn_username'], FILTER_SANITIZE_STRING);
     $user_data['fullname'] = filter_var($data['sgn_fullname'], FILTER_SANITIZE_STRING);
     $user_data['password'] = filter_var($data['sgn_password'], FILTER_SANITIZE_STRING);
-    if ($user_data['username'] == "") $errors["invalid_username"] = true;
-    if ($user_data['fullname'] == "") $errors["invalid_fullname"] = true;
-    if ($user_data['password'] == "") $errors["invalid_fullname"] = true;
-    if ($errors["invalid_username"] == true or $errors["invalid_fullname"] == true or $errors["invalid_fullname"] == true) {
+    if (
+        $user_data['username'] == "" or
+        $user_data['fullname'] == "" or
+        $user_data['password'] == "") $empty_fields = true;
+    if ($empty_fields) {
         return $this->view->render($response, 'signup.html', [
             'page_title' => 'Signup-with',
-            'errors' => $errors
+            'empty_fields' => $empty_fields
         ]);
     };
     $user = new User($this->db);
     $result = $user->insertUser($user_data);
-    //if ($result != false)){
-        //$_SESSION["id"] = $result->id;
-        //return json_encode((object) array('success'=>true, 'fullname' => $result->full_name ));
-    //};
+    if ($result == true){
+        $result = $user->getUserByUsername($user_data['username']);
+        if (!empty($result)){
+                $_SESSION["id"] = $result["id"];
+                $_SESSION["username"] = $result["username"];
+                $_SESSION["full_name"] = $result["full_name"];
+                return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
+        };
+    };
     return $this->view->render($response, 'signup.html', [
         'page_title' => 'Signup',
-        'errors' => $errors
+        'errors' => $empty_fields
     ]);
 });
 
-// Home page
+// Logout
+$app->get('/logout', function ($request, $response, $args) {
+    session_destroy();
+	return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('login'));
+});
+
+// Reports page
+$app->get('/reports', function ($request, $response, $args) {
+    if(!$_SESSION){
+		return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('login'));
+	};
+    return $this->view->render($response, 'reports.html', [
+        'page_title' => 'Reports',
+        'full_name' => $_SESSION['full_name']
+    ]);
+})->setName('reports');
+
+// Enroll page
 $app->get('/', function ($request, $response, $args) {
     if(!$_SESSION){
 		return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('login'));
 	};
     return $this->view->render($response, 'index.html', [
-        'page_title' => 'Dashboard'
+        'page_title' => 'Enroll',
+        'full_name' => $_SESSION['full_name']
     ]);
 })->setName('home');
