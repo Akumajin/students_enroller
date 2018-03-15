@@ -16,13 +16,18 @@ class User
         return $stmt->fetch();
     }
     public function insertUser($user_data) {
-        $sql = "INSERT INTO `users` (`username`, `full_name`, `password`) VALUES (:username, :fullname, :password)";
-        $stmt = $this->db->prepare($sql);
-        $result = $stmt->execute([
-            "username" => $user_data["username"],
-            "fullname" => $user_data["fullname"],
-            "password" => password_hash($user_data['password'], PASSWORD_DEFAULT)
-            ]);
+        $result = "success";
+        try {
+            $sql = "INSERT INTO `users` (`username`, `full_name`, `password`) VALUES (:username, :fullname, :password)";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                "username" => $user_data["username"],
+                "fullname" => $user_data["fullname"],
+                "password" => password_hash($user_data['password'], PASSWORD_DEFAULT)
+                ]);
+        } catch(PDOException $e) {
+            if ($e->errorInfo[1] == 1062) $result = "duplicate_entry";
+        }
         return $result;
     }
     public function getAllUsers() {
