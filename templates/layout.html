@@ -11,11 +11,37 @@
     <title>Students Enroller | {{page_title}}</title>
   </head>
   <body>
+    {% if full_name %}
+      <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+        <a class="navbar-brand" href="#">
+          <img src="/static/template/logo-white.png" height="30" alt="">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+          aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item {% if page_title == 'Enroll'%}active{% endif %}">
+              <a class="nav-link" href="/">Enroll
+                <span class="sr-only">(current)</span>
+              </a>
+            </li>
+            <li class="nav-item {% if page_title == 'Reports'%}active{% endif %}">
+              <a class="nav-link" href="/reports">Reports</a>
+            </li>
+          </ul>
+          <span class="navbar-text">
+              Welcome, {{full_name}}! (<a href="/logout">Logout</a>)
+          </span>
+        </div>
+      </nav>
+    {% endif %}
     <div class="container">
     {% block body %}{% endblock %}
     </div>
     <script src="/static/js/jquery-3.3.1.min.js"></script>
-    <script src="/static/js/bootstrap.bundle.min"></script>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
     {% block scripts %}{% endblock %}
   </body>
 </html>
