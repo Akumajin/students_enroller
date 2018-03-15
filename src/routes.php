@@ -6,6 +6,7 @@ use Slim\Http\Response;
 
 // Login page
 $app->get('/login', function (Request $request, Response $response, array $args) {
+    
     if($_SESSION){
 		return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
 	};
