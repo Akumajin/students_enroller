@@ -1,6 +1,41 @@
 {% extends "layout.html" %}
 {% block body %}
-<h1 class="text-center">
-Welcome To Reports!
-</h1>
+<div class="white-box tb-margin">
+    <h3 class="text-center">Reports</h3>
+    <hr>
+    <div class="row">
+        <div class="col">
+            <div class="number-box bg-success rounded text-center">
+                <div class="display-2 text-white">{{units|length}}</div>
+                <p class="text-white pb-3">Units Taken</p>
+            </div>
+        </div>
+        <div class="col">
+            <div class="number-box bg-primary rounded text-center">
+                <div class="display-2 text-white">{{credits}}</div>
+                <p class="text-white pb-3">Total Credits</p>
+            </div>
+        </div>
+    </div>
+    <table class="table table-striped table-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Row</th>
+                    <th>Unit Name</th>
+                    <th>Unit Code</th>
+                    <th>Credits</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for unit in units %}
+                <tr>
+                    <td>{{loop.index}}</td>
+                    <td>{{unit.title}}</td>
+                    <td>{{unit.unit_code}}</td>
+                    <td>{{unit.credits}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+</div>
 {% endblock %}

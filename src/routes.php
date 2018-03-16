@@ -4,6 +4,13 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 // Routes
 
+// Setup database
+$app->get('/setup', function (Request $request, Response $response, array $args) {
+    $database = new Database($this->db);
+    $database->createDbIfNotExist();
+    return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('login'));
+});
+
 // Login page
 $app->get('/login', function (Request $request, Response $response, array $args) {
     
@@ -91,10 +98,16 @@ $app->get('/logout', function ($request, $response, $args) {
 $app->get('/reports', function ($request, $response, $args) {
     if(!$_SESSION){
 		return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('login'));
-	};
+    };
+    $unit = new Unit($this->db);
+    $result = $unit->getUserUnits($_SESSION['id']);
+    $total_credits = 0;
+    foreach ($result as $value) $total_credits += $value['credits'];
     return $this->view->render($response, 'reports.html', [
         'page_title' => 'Reports',
-        'full_name' => $_SESSION['full_name']
+        'full_name' => $_SESSION['full_name'],
+        'units' => $result,
+        'credits' => $total_credits
     ]);
 })->setName('reports');
 
@@ -102,9 +115,43 @@ $app->get('/reports', function ($request, $response, $args) {
 $app->get('/', function ($request, $response, $args) {
     if(!$_SESSION){
 		return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('login'));
-	};
+    };
+    $_SESSION['_token'] = bin2hex(openssl_random_pseudo_bytes(16));
+    $unit = new Unit($this->db);
+    $result = $unit->getAllUnitsByUser($_SESSION['id']);
+    
     return $this->view->render($response, 'index.html', [
         'page_title' => 'Enroll',
-        'full_name' => $_SESSION['full_name']
+        'full_name' => $_SESSION['full_name'],
+        'token' => $_SESSION['_token'],
+        'units' => $result
     ]);
 })->setName('home');
+
+// Enroll To Unit From
+
+$app->post('/enroll', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $target_unit = $data['unit_id'];
+    $token = $data['token'];
+    if ($token !== $_SESSION['_token']){
+        return 'bad token';
+    }
+    $unit = new Unit($this->db);
+    $result = $unit->enrollUser($_SESSION['id'], $target_unit);
+    return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
+});
+
+// Leave Unit From
+
+$app->post('/leave', function ($request, $response, $args) {
+    $data = $request->getParsedBody();
+    $target_unit = $data['unit_id'];
+    $token = $data['token'];
+    if ($token !== $_SESSION['_token']){
+        return 'bad token';
+    }
+    $unit = new Unit($this->db);
+    $result = $unit->cancelUser($_SESSION['id'], $target_unit);
+    return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
+});
