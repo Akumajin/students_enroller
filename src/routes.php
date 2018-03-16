@@ -4,6 +4,24 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 // Routes
 
+
+function checkRecaptcha($cp_value){
+	$url = 'https://www.google.com/recaptcha/api/siteverify';
+	$data = array(
+		'secret' => '6LeDCk0UAAAAAPGSttmBcNzTRvq3aliqeJqJGIV2',
+		'response' => $cp_value
+	);
+	$options = array(
+		'http' => array (
+			'method' => 'POST',
+			'content' => http_build_query($data)
+		)
+	);
+	$context  = stream_context_create($options);
+    $verify = file_get_contents($url, false, $context);
+    return json_decode($verify)->success;
+}
+
 // Setup database
 $app->get('/setup', function (Request $request, Response $response, array $args) {
     $database = new Database($this->db);
@@ -27,18 +45,23 @@ $app->post('/login', function ($request, $response, $args) {
     $user_data = [];
     $user_data['username'] = filter_var($data['lg_username'], FILTER_SANITIZE_STRING);
     $user_data['password'] = filter_var($data['lg_password'], FILTER_SANITIZE_STRING);
-    
-    $user = new User($this->db);
-    $result = $user->getUserByUsername($user_data['username']);
-    if (!empty($result) and password_verify($user_data['password'], $result["password"])){
-            $_SESSION["id"] = $result["id"];
-            $_SESSION["username"] = $result["username"];
-            $_SESSION["full_name"] = $result["full_name"];
-            return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
-    };
+    $login_error = 'Username or password was entered incorrectly.';
+	if (checkRecaptcha($data['g-recaptcha-response']) === true) {
+        $user = new User($this->db);
+        $result = $user->getUserByUsername($user_data['username']);
+        if (!empty($result) and password_verify($user_data['password'], $result["password"])){
+                $_SESSION["id"] = $result["id"];
+                $_SESSION["username"] = $result["username"];
+                $_SESSION["full_name"] = $result["full_name"];
+                $_SESSION['_token'] = bin2hex(openssl_random_pseudo_bytes(16));
+                return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
+        };
+	} else {
+        $login_error = 'Please check the recaptcha.';
+    }
     return $this->view->render($response, 'login.html', [
         'page_title' => 'Login',
-        'error' => 'Username or password was entered incorrectly.'
+        'error' => $login_error
     ]);
 });
 
@@ -53,38 +76,40 @@ $app->post('/signup', function ($request, $response, $args) {
     $data = $request->getParsedBody();
     $empty_fields = false;
     $is_duplicated = false;
+    $empty_captcha = false;
     $user_data = [];
     $user_data['username'] = filter_var($data['sgn_username'], FILTER_SANITIZE_STRING);
     $user_data['fullname'] = filter_var($data['sgn_fullname'], FILTER_SANITIZE_STRING);
     $user_data['password'] = filter_var($data['sgn_password'], FILTER_SANITIZE_STRING);
-    if (
-        $user_data['username'] == "" or
+    $captcha = $data['g-recaptcha-response'];
+    if ($captcha == "") $empty_captcha = true;
+    if ($user_data['username'] == "" or
         $user_data['fullname'] == "" or
         $user_data['password'] == "") $empty_fields = true;
-    if ($empty_fields) {
-        return $this->view->render($response, 'signup.html', [
-            'page_title' => 'Signup-with',
-            'empty_fields' => $empty_fields
-        ]);
-    };
-
-    $user = new User($this->db);
-    $result = $user->insertUser($user_data);
-    if ($result == "duplicate_entry"){
-        $is_duplicated = true;
-    } else if ($result == "success"){
-        $fetched_user = $user->getUserByUsername($user_data['username']);
-        if (!empty($fetched_user)){
-            $_SESSION["id"] = $fetched_user["id"];
-            $_SESSION["username"] = $fetched_user["username"];
-            $_SESSION["full_name"] = $fetched_user["full_name"];
-            return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
-        };
+    $captcha_verified = checkRecaptcha($data['g-recaptcha-response']);
+    if ($captcha_verified  === true and !$empty_fields and !$empty_captcha) {
+        $user = new User($this->db);
+        $result = $user->insertUser($user_data);
+        if ($result == "duplicate_entry"){
+            $is_duplicated = true;
+        } else if ($result == "success"){
+            $fetched_user = $user->getUserByUsername($user_data['username']);
+            if (!empty($fetched_user)){
+                $_SESSION["id"] = $fetched_user["id"];
+                $_SESSION["username"] = $fetched_user["username"];
+                $_SESSION["full_name"] = $fetched_user["full_name"];
+                $_SESSION['_token'] = bin2hex(openssl_random_pseudo_bytes(16));
+                return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
+            };
+        }
+    } else if ($captcha_verified === false){
+        return "Go away, bot!";
     }
     return $this->view->render($response, 'signup.html', [
         'page_title' => 'Signup',
         'errors' => $empty_fields,
-        'id_duplicated' => $is_duplicated
+        'id_duplicated' => $is_duplicated,
+        'empty_captcha' => $empty_captcha
     ]);
 });
 
@@ -116,10 +141,8 @@ $app->get('/', function ($request, $response, $args) {
     if(!$_SESSION){
 		return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('login'));
     };
-    $_SESSION['_token'] = bin2hex(openssl_random_pseudo_bytes(16));
     $unit = new Unit($this->db);
     $result = $unit->getAllUnitsByUser($_SESSION['id']);
-    
     return $this->view->render($response, 'index.html', [
         'page_title' => 'Enroll',
         'full_name' => $_SESSION['full_name'],

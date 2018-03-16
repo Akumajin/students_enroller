@@ -9,7 +9,7 @@ class User
     }
     public function getUserByUsername($username) {
 
-        $sql = "SELECT * from users where username = :username";
+        $sql = "SELECT * from tbl_users where username = :username";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(["username" => $username]);
 
@@ -18,7 +18,7 @@ class User
     public function insertUser($user_data) {
         $result = "success";
         try {
-            $sql = "INSERT INTO `users` (`username`, `full_name`, `password`) VALUES (:username, :fullname, :password)";
+            $sql = "INSERT INTO tbl_users (username, full_name, password) VALUES (:username, :fullname, :password)";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
                 "username" => $user_data["username"],
@@ -31,7 +31,7 @@ class User
         return $result;
     }
     public function getAllUsers() {
-        $sql = "SELECT * from users";
+        $sql = "SELECT * from tbl_users";
         $stmt = $this->db->query($sql);
 
         $results = [];

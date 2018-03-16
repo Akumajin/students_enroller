@@ -11,25 +11,25 @@ class Database
         try {
             $db =  $this->db;
             $db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );//Error Handling
-            $sql ="CREATE TABLE IF NOT EXISTS users (
+            $sql ="CREATE TABLE IF NOT EXISTS tbl_users (
                 id int(11) AUTO_INCREMENT PRIMARY KEY,
                 username varchar(20) NOT NULL UNIQUE,
                 full_name varchar(20) NOT NULL,
                 password varchar(100) NOT NULL) ENGINE=InnoDB;
-            CREATE TABLE IF NOT EXISTS units (
+            CREATE TABLE IF NOT EXISTS tbl_units (
                 id int(11) AUTO_INCREMENT PRIMARY KEY,
                 title varchar(200) NOT NULL,
                 unit_code varchar(50) NOT NULL,
                 credits int(11) NOT NULL) ENGINE=InnoDB;
-            CREATE TABLE IF NOT EXISTS enrollments(
+            CREATE TABLE IF NOT EXISTS tbl_enrollments(
                 id INT(11) AUTO_INCREMENT PRIMARY KEY,
                 user_id int(11) NOT NULL,
                 unit_id int(11) NOT NULL,
                 create_date_time datetime NOT NULL,
                 UNIQUE KEY (unit_id, user_id),
-                FOREIGN KEY (user_id) REFERENCES users(id),
-                FOREIGN KEY (unit_id) REFERENCES units(id)) ENGINE=InnoDB;
-            INSERT INTO units (id, title, unit_code, credits) VALUES
+                FOREIGN KEY (user_id) REFERENCES tbl_users(id),
+                FOREIGN KEY (unit_id) REFERENCES tbl_units(id)) ENGINE=InnoDB;
+            INSERT INTO tbl_units (id, title, unit_code, credits) VALUES
                 (1, 'Academic Listening and Speaking', 'LANG10007', 10),
                 (2, 'Academic Reading and Writing', 'LANG10008', 10),
                 (3, 'Communicating Science', 'PHYS10001', 20),

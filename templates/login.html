@@ -24,12 +24,15 @@
         <label for="lg_password">Password</label>
         <input type="password" name="lg_password" class="form-control" id="lg_password" placeholder="Password">
       </div>
-      
+      <div class="g-recaptcha mb-2" data-sitekey="6LeDCk0UAAAAAK8py3jkgp_DfccO730X2UkaPQmH"></div>
       <div class="form-button text-center">
           <button type="submit" class="btn btn-primary btn-block">Login</button>
           <div class="tb-margin-low">don't have an account? <a href="/signup">Signup</a></p>
-      </div>      
+      </div>
     </form>
   </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script src='https://www.google.com/recaptcha/api.js'></script>
 {% endblock %}

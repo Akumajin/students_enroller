@@ -9,12 +9,12 @@ class Unit
     }
 
     public function getAllUnitsByUser($user_id) {
-        $sql = "SELECT units.id as uid, units.title,units.unit_code,units.credits,enrollments.user_id FROM units
-        LEFT JOIN enrollments ON units.id=enrollments.unit_id
-        WHERE enrollments.user_id = 1 or enrollments.user_id IS NULL
-        ORDER BY units.id ASC";
-        $stmt = $this->db->query($sql);
-        $stmt->execute(["user_id" => $user_id]);
+        $sql = "SELECT tbl_units.id as uid, tbl_units.title, tbl_units.unit_code, tbl_units.credits, tbl_enrollments.user_id FROM tbl_units
+        LEFT JOIN tbl_enrollments ON tbl_units.id = tbl_enrollments.unit_id
+        WHERE tbl_enrollments.user_id = :user_id or tbl_enrollments.user_id IS NULL
+        ORDER BY uid ASC;";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(array("user_id" => $user_id));
         $results = [];
         while($row = $stmt->fetch()) {
             $results[] = $row;
@@ -23,11 +23,11 @@ class Unit
     }
     
     public function getUserUnits($user_id) {
-        $sql = "SELECT * FROM units
-        INNER JOIN enrollments ON units.id=enrollments.unit_id
-        WHERE enrollments.user_id = 1
-        ORDER BY units.id ASC";
-        $stmt = $this->db->query($sql);
+        $sql = "SELECT * FROM tbl_units
+        INNER JOIN tbl_enrollments ON tbl_units.id = tbl_enrollments.unit_id
+        WHERE tbl_enrollments.user_id = :user_id
+        ORDER BY tbl_units.id ASC";
+        $stmt = $this->db->prepare($sql);
         $stmt->execute(["user_id" => $user_id]);
         $results = [];
         while($row = $stmt->fetch()) {
@@ -39,7 +39,7 @@ class Unit
     public function enrollUser($user_id, $target_unit) {
         $result = "success";
         try {
-            $sql = "INSERT INTO enrollments (user_id, unit_id, create_date_time) VALUES (:user_id, :unit_id, :datetime);";
+            $sql = "INSERT INTO tbl_enrollments (user_id, unit_id, create_date_time) VALUES (:user_id, :unit_id, :datetime);";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
                 "user_id" => $user_id,
@@ -56,7 +56,7 @@ class Unit
     public function cancelUser($user_id, $target_unit) {
         $result = "success";
         try {
-            $sql = "DELETE FROM enrollments WHERE user_id = :user_id AND unit_id = :unit_id;";
+            $sql = "DELETE FROM tbl_enrollments WHERE user_id = :user_id AND unit_id = :unit_id;";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
                 "user_id" => $user_id,
