@@ -1,12 +1,49 @@
+@font-face {
+  font-family: Roboto;
+  src: url("/static/fonts/Roboto-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal; }
+@font-face {
+  font-family: Roboto;
+  src: url("/static/fonts/Roboto-Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: Roboto;
+  src: url("/static/fonts/Roboto-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal; }
+@font-face {
+  font-family: Roboto;
+  src: url("/static/fonts/Roboto-Medium.woff") format("woff");
+  font-weight: bold;
+  font-style: normal; }
+html, body {
+    font-family: 'Roboto', sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -moz-font-feature-settings: 'liga', 'kern';
+}
 body {
     background-color: #f0f1f3;
 }
+
 .white-box {
     background-color: #fff;
     padding: 15px;
     border-radius: 7px;
+    box-shadow: 0px 0px 3px #dbdbdb;
+    border: 1px solid #e6e6e6;
+}
+.white-box.bolder {
     box-shadow: 0px 2px 4px #b7b7b7;
     border: 1px solid #ccc;
+}
+.tb-margin{
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 .tb-margin-low{
     margin-top: 5px;
