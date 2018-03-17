@@ -1,11 +1,11 @@
 {% extends "layout.html" %}
 {% block styles %}
-<link rel="stylesheet" href="/static/css/login.css" >
+<link rel="stylesheet" href="{{ base_url() }}/static/css/login.css" >
 {% endblock %}
 {% block body %}
 <div class="login-container">
   <div class="lg-logo">
-    <img src="/static/template/logo.png">
+    <img src="{{ base_url() }}/static/template/logo.png">
   </div>
   {% if error %}
   <div class="alert alert-danger">
@@ -27,7 +27,7 @@
       <div class="g-recaptcha mb-2" data-sitekey="6LeDCk0UAAAAAK8py3jkgp_DfccO730X2UkaPQmH"></div>
       <div class="form-button text-center">
           <button type="submit" class="btn btn-primary btn-block">Login</button>
-          <div class="tb-margin-low">don't have an account? <a href="/signup">Signup</a></p>
+          <div class="tb-margin-low">don't have an account? <a href="{{ base_url() }}/signup">Signup</a></p>
       </div>
     </form>
   </div>

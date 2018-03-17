@@ -21,13 +21,13 @@
                 <td>{{unit.credits}}</td>
                 <td>
                     {% if unit.user_id %}
-                    <form action="/leave" method="POST">
+                    <form action="{{ base_url() }}/leave" method="POST">
                         <input type="hidden" name="unit_id" value="{{unit.uid}}" >
                         <input type="hidden" name="token" value="{{ token }}" >                        
                         <button class="btn btn-secondary btn-sm">Leave</button>
                     </form>
                     {% else %}
-                    <form action="/enroll" method="POST">
+                    <form action="{{ base_url() }}/enroll" method="POST">
                         <input type="hidden" name="unit_id" value="{{unit.uid}}" >
                         <input type="hidden" name="token" value="{{ token }}" >
                         <button class="btn btn-primary btn-sm">Enroll</button>

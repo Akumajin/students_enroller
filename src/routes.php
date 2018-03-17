@@ -16,10 +16,14 @@ function checkRecaptcha($cp_value){
 			'method' => 'POST',
 			'content' => http_build_query($data)
 		)
-	);
-	$context  = stream_context_create($options);
-    $verify = file_get_contents($url, false, $context);
-    return json_decode($verify)->success;
+    );
+    $curl = curl_init($url);
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($curl);
+    curl_close($curl);
+    return json_decode($response)->success;
 }
 
 // Setup database
