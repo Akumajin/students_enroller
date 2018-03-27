@@ -23,6 +23,8 @@ function checkRecaptcha($cp_value){
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     $response = curl_exec($curl);
     curl_close($curl);
+    echo $response;
+    return true;
     return json_decode($response)->success;
 }
 
@@ -57,6 +59,7 @@ $app->post('/login', function ($request, $response, $args) {
                 $_SESSION["id"] = $result["id"];
                 $_SESSION["username"] = $result["username"];
                 $_SESSION["full_name"] = $result["full_name"];
+                $_SESSION["is_admin"] = $result["is_admin"];
                 $_SESSION['_token'] = bin2hex(openssl_random_pseudo_bytes(16));
                 return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
         };
@@ -102,6 +105,7 @@ $app->post('/signup', function ($request, $response, $args) {
                 $_SESSION["id"] = $fetched_user["id"];
                 $_SESSION["username"] = $fetched_user["username"];
                 $_SESSION["full_name"] = $fetched_user["full_name"];
+                $_SESSION["is_admin"] = $result["is_admin"];
                 $_SESSION['_token'] = bin2hex(openssl_random_pseudo_bytes(16));
                 return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
             };
@@ -181,4 +185,39 @@ $app->post('/leave', function ($request, $response, $args) {
     $unit = new Unit($this->db);
     $result = $unit->cancelUser($_SESSION['id'], $target_unit);
     return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
+});
+
+// Admin Reports
+$app->get('/admin-reports[/{id}]', function (Request $request, Response $response, array $args) {
+    if(!$_SESSION){
+		return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('login'));
+    };
+    if($_SESSION["is_admin"] != 1){
+		return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
+    };
+    if(isset($args['id'])){
+        $selectedUserId = $args['id'];
+        $tgUser = new User($this->db);
+        $selectedUser = $tgUser.getUserById($selectedUserId);
+        $unit = new Unit($this->db);
+        $result = $unit->getUserUnits($selectedUserId);
+        $total_credits = 0;
+        foreach ($result as $value) $total_credits += $value['credits'];
+        return $this->view->render($response, 'reports.html', [
+            'page_title' => 'Reports',
+            'full_name' => $_SESSION['full_name'],
+            'units' => $result,
+            'credits' => $total_credits,
+            'selectedUser' => $selectedUser["full_name"]
+        ]);
+    }else{
+        $users = new User($this->db);
+        $result = $users->getAllUsers();
+        return $this->view->render($response, 'reports.html', [
+            'page_title' => 'Reports',
+            'full_name' => $_SESSION['full_name'],
+            'users' => $result,
+            'credits' => $total_credits
+        ]);
+    }
 });

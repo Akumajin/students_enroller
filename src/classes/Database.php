@@ -15,7 +15,8 @@ class Database
                 id int(11) AUTO_INCREMENT PRIMARY KEY,
                 username varchar(20) NOT NULL UNIQUE,
                 full_name varchar(20) NOT NULL,
-                password varchar(100) NOT NULL) ENGINE=InnoDB;
+                password varchar(100) NOT NULL,
+                is_admin int(1) NOT NULL) ENGINE=InnoDB;
             CREATE TABLE IF NOT EXISTS tbl_units (
                 id int(11) AUTO_INCREMENT PRIMARY KEY,
                 title varchar(200) NOT NULL,
