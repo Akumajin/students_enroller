@@ -132,13 +132,15 @@ $app->get('/reports', function ($request, $response, $args) {
     if(!$_SESSION){
 		return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('login'));
     };
+    $user = new User($this->db);
+    $currentUser = $user->getUserById($_SESSION['id']);
     $unit = new Unit($this->db);
     $result = $unit->getUserUnits($_SESSION['id']);
     $total_credits = 0;
     foreach ($result as $value) $total_credits += $value['credits'];
     return $this->view->render($response, 'reports.html', [
         'page_title' => 'Reports',
-        'full_name' => $_SESSION['full_name'],
+        'current_user' => $currentUser,
         'units' => $result,
         'credits' => $total_credits
     ]);
@@ -149,13 +151,17 @@ $app->get('/', function ($request, $response, $args) {
     if(!$_SESSION){
 		return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('login'));
     };
+    $user = new User($this->db);
+    $currentUser = $user->getUserById($_SESSION['id']);
     $unit = new Unit($this->db);
-    $result = $unit->getAllUnitsByUser($_SESSION['id']);
+    $enrolledUnits = $unit->getUserUnitsId($_SESSION['id']);
+    $allUnits = $unit->getAllUnits();
     return $this->view->render($response, 'index.html', [
         'page_title' => 'Enroll',
-        'full_name' => $_SESSION['full_name'],
-        'token' => $_SESSION['_token'],
-        'units' => $result
+        'current_user' => $currentUser,
+        'all_units' => $allUnits,
+        'enrolled_units' => $enrolledUnits,
+        'token' => $_SESSION['_token']
     ]);
 })->setName('home');
 
@@ -188,36 +194,36 @@ $app->post('/leave', function ($request, $response, $args) {
 });
 
 // Admin Reports
-$app->get('/admin-reports[/{id}]', function (Request $request, Response $response, array $args) {
+$app->get('/admin-reports[/{id}]', function ($request, $response, $args) {
     if(!$_SESSION){
 		return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('login'));
     };
-    if($_SESSION["is_admin"] != 1){
+    $user = new User($this->db);
+    $currentUser = $user->getUserById($_SESSION['id']);
+    if($currentUser["is_admin"] != 1){
 		return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
     };
     if(isset($args['id'])){
         $selectedUserId = $args['id'];
-        $tgUser = new User($this->db);
-        $selectedUser = $tgUser.getUserById($selectedUserId);
+        $selectedUser = $user->getUserById($selectedUserId);
         $unit = new Unit($this->db);
         $result = $unit->getUserUnits($selectedUserId);
         $total_credits = 0;
         foreach ($result as $value) $total_credits += $value['credits'];
         return $this->view->render($response, 'reports.html', [
-            'page_title' => 'Reports',
-            'full_name' => $_SESSION['full_name'],
+            'page_title' => 'Admin Reports',
+            'current_user' => $currentUser,
             'units' => $result,
             'credits' => $total_credits,
             'selectedUser' => $selectedUser["full_name"]
         ]);
     }else{
         $users = new User($this->db);
-        $result = $users->getAllUsers();
-        return $this->view->render($response, 'reports.html', [
-            'page_title' => 'Reports',
-            'full_name' => $_SESSION['full_name'],
-            'users' => $result,
-            'credits' => $total_credits
+        $allUsers = $users->getAllUsers();
+        return $this->view->render($response, 'admin_reports.html', [
+            'page_title' => 'Admin Reports',
+            'current_user' => $currentUser,
+            'all_users' => $allUsers,
         ]);
     }
 });

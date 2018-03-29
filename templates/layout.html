@@ -11,7 +11,7 @@
     <title>Students Enroller | {{page_title}}</title>
   </head>
   <body>
-    {% if full_name %}
+    {% if current_user %}
       <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
         <a class="navbar-brand" href="#">
           <img src="{{ base_url() }}/static/template/logo-white.png" height="30" alt="">
@@ -30,9 +30,14 @@
             <li class="nav-item {% if page_title == 'Reports'%}active{% endif %}">
               <a class="nav-link" href="{{ base_url() }}/reports">Reports</a>
             </li>
+            {% if current_user.is_admin == 1 %}
+            <li class="nav-item {% if page_title == 'Admin Reports'%}active{% endif %}">
+              <a class="nav-link" href="{{ base_url() }}/admin-reports">Admin Reports</a>
+            </li>
+            {% endif %}
           </ul>
           <span class="navbar-text">
-              Welcome, {{full_name}}! (<a href="{{ base_url() }}/logout">Logout</a>)
+              Welcome, {{current_user.full_name}}! (<a href="{{ base_url() }}/logout">Logout</a>)
           </span>
         </div>
       </nav>

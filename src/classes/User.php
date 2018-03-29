@@ -7,18 +7,17 @@ class User
     public function __construct($db) {
         $this->db = $db;
     }
+    public function getUserById($id) {
+        $sql = "SELECT * from tbl_users where id = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(["id" => $id]);
+        return $stmt->fetch();
+    }
 
     public function getUserByUsername($username) {
         $sql = "SELECT * from tbl_users where username = :username";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(["username" => $username]);
-        return $stmt->fetch();
-    }
-
-    public function getUserById($id) {
-        $sql = "SELECT * from tbl_users where id = :id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(["id" => $id]);
         return $stmt->fetch();
     }
 
@@ -43,7 +42,7 @@ class User
         $stmt = $this->db->query($sql);
         $results = [];
         while($row = $stmt->fetch()) {
-            $results[] = new ComponentEntity($row);
+            $results[] = $row;
         }
         return $results;        
     }    

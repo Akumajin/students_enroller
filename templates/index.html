@@ -13,22 +13,22 @@
             </tr>
         </thead>
         <tbody>
-            {% for unit in units %}
+            {% for unit in all_units %}
             <tr>
                 <td>{{loop.index}}</td>
                 <td>{{unit.title}}</td>
                 <td>{{unit.unit_code}}</td>
                 <td>{{unit.credits}}</td>
                 <td>
-                    {% if unit.user_id %}
+                    {% if unit.id in enrolled_units %}
                     <form action="{{ base_url() }}/leave" method="POST">
-                        <input type="hidden" name="unit_id" value="{{unit.uid}}" >
+                        <input type="hidden" name="unit_id" value="{{unit.id}}" >
                         <input type="hidden" name="token" value="{{ token }}" >                        
                         <button class="btn btn-secondary btn-sm">Leave</button>
                     </form>
                     {% else %}
                     <form action="{{ base_url() }}/enroll" method="POST">
-                        <input type="hidden" name="unit_id" value="{{unit.uid}}" >
+                        <input type="hidden" name="unit_id" value="{{unit.id}}" >
                         <input type="hidden" name="token" value="{{ token }}" >
                         <button class="btn btn-primary btn-sm">Enroll</button>
                     </form>

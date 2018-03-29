@@ -8,13 +8,21 @@ class Unit
         $this->db = $db;
     }
 
-    public function getAllUnitsByUser($user_id) {
-        $sql = "SELECT tbl_units.id as uid, tbl_units.title, tbl_units.unit_code, tbl_units.credits, tbl_enrollments.user_id FROM tbl_units
-        LEFT JOIN tbl_enrollments ON tbl_units.id = tbl_enrollments.unit_id
-        WHERE tbl_enrollments.user_id = :user_id or tbl_enrollments.user_id IS NULL
-        ORDER BY uid ASC;";
+    public function getUserUnitsId($user_id) {
+        $sql = "SELECT * FROM tbl_enrollments WHERE tbl_enrollments.user_id = :user_id;";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(array("user_id" => $user_id));
+        $results = [];
+        while($row = $stmt->fetch()) {
+            $results[] = $row["unit_id"];
+        }
+        return $results;        
+    }
+
+    public function getAllUnits() {
+        $sql = "SELECT * FROM tbl_units;";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
         $results = [];
         while($row = $stmt->fetch()) {
             $results[] = $row;
